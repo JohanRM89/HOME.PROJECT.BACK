@@ -1,0 +1,2 @@
+ALTER TABLE family_groups
+ADD COLUMN IF NOT EXISTS invitation_code VARCHAR(10) UNIQUE;

@@ -29,6 +29,8 @@ class AuthController {
   }
 
   async me(req, res) {
+
+    ///Conectar la parte de las familias 
     return ResponseView.success(res, req.user, 'Perfil del usuario');
   }
 

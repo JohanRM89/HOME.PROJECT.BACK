@@ -5,6 +5,7 @@ const cors     = require('cors');
 const authRoutes = require('./routes/auth.routes');
 const taskRoutes = require('./routes/task.routes');
 const miscRoutes = require('./routes/misc.routes');
+const familyRoutes = require('./routes/family.routes');
 const { errorHandler, notFound } = require('./middlewares/error.middleware');
 const NotificationObserver       = require('./patterns/NotificationObserver');
 
@@ -25,6 +26,7 @@ app.use((req, res, next) => {
 });
 
 // ── Rutas de la API ──────────────────────────────────────────
+app.use('/api/family',  familyRoutes);
 app.use('/api/auth',  authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api',       miscRoutes);
