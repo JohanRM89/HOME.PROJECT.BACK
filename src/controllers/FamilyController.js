@@ -36,10 +36,11 @@ class FamilyController {
 
     async removeMember(req, res, next) {
         try {
-            const { id, memberId } = req.params;
+            const { memberId, user_id } = req.params;
             const fam = await FamilyService.removeMember(
-                id,
-                memberId
+                req.user.id,
+                memberId,
+                user_id
             ); return ResponseView.success(res, fam);
 
         } catch (e) {

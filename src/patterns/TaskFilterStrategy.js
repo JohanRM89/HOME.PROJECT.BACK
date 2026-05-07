@@ -36,7 +36,6 @@ class TaskFilterContext {
         filters = this._strategies[key].apply(filters, value);
       }
     }
-    console.log("fo",filters)
     return filters;
   }
 }

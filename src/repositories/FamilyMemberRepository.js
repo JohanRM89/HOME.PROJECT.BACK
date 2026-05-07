@@ -3,8 +3,6 @@ const db = require('../config/database');
 class FamilyMemberRepository {
 
   async find(userId, familyId) {
-    console.log("userId",userId)
-    console.log("familyId",familyId)
     const { rows } = await db.query(
       `SELECT * FROM user_groups 
        WHERE user_id=$1 AND group_id=$2`,
@@ -48,6 +46,18 @@ class FamilyMemberRepository {
       [userId, familyId]
     );
   }
+
+  
+async isMember(userId, familyId) {
+    const { rows } = await db.query(
+      `SELECT 1 FROM user_groups
+       WHERE user_id = $1 AND group_id = $2`,
+      [userId, familyId]
+    );
+    return rows.length > 0;
+  };
+
+
 }
 
 module.exports = new FamilyMemberRepository();

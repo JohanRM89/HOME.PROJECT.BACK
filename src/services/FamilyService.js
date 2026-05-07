@@ -54,7 +54,7 @@ class FamilyService {
         return family;
     }
 
-    async getFamily(userId, familyId) {
+    async getFamily(userId, familyId, user_id_delete) {
         const member = await FamilyMemberRepository.find(userId, familyId);
         if (!member)
             throw { status: 403, message: 'Acceso denegado' };
@@ -66,16 +66,19 @@ class FamilyService {
         return family;
     }
 
-    async removeMember(requesterId, familyId) {
+    async removeMember(requesterId, familyId, user_id) {
         const admin = await FamilyMemberRepository.find(requesterId, familyId);
-        console.log("ad",admin)
-        if (!admin || !admin.es_admin)
+        if (!admin || admin.role === "member")
             throw {
                 status: 403,
                 message: 'Solo el administrador puede remover miembros'
             };
-
-        await FamilyMemberRepository.remove(memberId, familyId);
+        if (admin.user_id === user_id)
+            throw {
+              status: 403,
+                message: 'No se puede eliminar al admin siendo admin'
+            }
+        await FamilyMemberRepository.remove(user_id, familyId);
     }
 }
 

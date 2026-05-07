@@ -18,6 +18,18 @@ class TaskService {
     }
     return task;
   }
+    async getAllTask(query = {}, paging = {}) {
+    const filters = TaskFilterStrategy.buildFilters(query);
+    return TaskRepository.findWithDetails(filters, paging);
+  }
+
+  async getAllTask(id) {
+    const task = await TaskRepository.findByIdWithDetails(id);
+    if (!task) {
+      const err = new Error('Tarea no encontrada'); err.status = 404; throw err;
+    }
+    return task;
+  }
 
   // ── Crear tarea ──────────────────────────────────────────
   async create(data, actor) {
@@ -30,6 +42,7 @@ class TaskService {
       group_id:    data.group_id    || null,
       created_by:  actor.id,
       assigned_to: data.assigned_to || null,
+      category_id :data.category_id
     });
 
     eventBus.emit(EVENTS.TASK_CREATED, { task, actor });

@@ -82,7 +82,7 @@ const taskRules = {
     query('priority').optional().isIn(['low', 'medium', 'high']),
     query('page').optional().isInt({ min: 1 }).toInt(),
     query('limit').optional().isInt({ min: 1, max: 100 }).toInt(), 
-    query('assignedTo').exists().withMessage('assignedTo es obligatorio'),
+   // query('assignedTo').exists().withMessage('assignedTo es obligatorio'),
     query('groupId').optional({ nullable: true })
       .isUUID().withMessage('ID de grupo inválido'), 
   ]),

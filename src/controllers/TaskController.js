@@ -22,6 +22,12 @@ class TaskController {
       return ResponseView.success(res, task);
     } catch (err) { next(err); }
   }
+  async show_all(req, res, next) {
+    try {
+      const task = await TaskService.getAllTask(req.params.id);
+      return ResponseView.success(res, task);
+    } catch (err) { next(err); }
+  }
 
   async create(req, res, next) {
     try {
