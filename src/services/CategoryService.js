@@ -15,7 +15,6 @@ class CategoryService {
     }
     async createCategorie(data,user_id) {
         const admin = await FamilyMemberRepository.find(user_id,data.group_id);
-        console.log("ad",admin)
         if (!admin || admin.role === "member")
             throw {
                 status: 403,

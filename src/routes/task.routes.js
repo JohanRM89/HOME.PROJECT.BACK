@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const TaskController = require('../controllers/TaskController');
+const Task_CommentController = require('../controllers/Task_CommentController');
 const { authenticate } = require('../middlewares/auth.middleware');
 const { taskRules } = require('../middlewares/validate.middleware');
 
@@ -13,5 +14,11 @@ router.post('/', taskRules.create, TaskController.create);
 router.put('/:id', taskRules.update, TaskController.update);
 router.patch('/:id/status', taskRules.changeStatus, TaskController.changeStatus);
 router.delete('/:id', taskRules.idParam, TaskController.destroy);
+
+router.get('/comments/task/:task_id', Task_CommentController.getTaskCommentsByTask);
+router.get('/comments/group/:group_id', Task_CommentController.getTaskCommentsByGroup);
+router.post('/comments', Task_CommentController.createTaskComment);
+router.delete('/comments/:id/:task_id', Task_CommentController.deleteTaskComment);
+
 
 module.exports = router;
