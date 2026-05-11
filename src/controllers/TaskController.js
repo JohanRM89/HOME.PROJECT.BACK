@@ -5,7 +5,6 @@ class TaskController {
   async index(req, res, next) {
     try {
       const { page = 1, limit = 20, ...filters } = req.query;
-      console.log("req.query",req.query)
       const result = await TaskService.list(filters, { page: +page, limit: +limit });
       return ResponseView.paginated(res, {
         data:       result.tasks,
