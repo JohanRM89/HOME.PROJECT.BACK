@@ -17,6 +17,7 @@ class AuthController {
     try {
       const meta   = { ip: req.ip, ua: req.headers['user-agent'] };
       const result = await AuthService.login({ ...req.body, meta });
+      console.log("re",result)
       return ResponseView.success(res, result, 'Sesión iniciada correctamente');
     } catch (err) { next(err); }
   }

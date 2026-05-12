@@ -47,8 +47,8 @@ class FamilyMemberRepository {
     );
   }
 
-  
-async isMember(userId, familyId) {
+
+  async isMember(userId, familyId) {
     const { rows } = await db.query(
       `SELECT 1 FROM user_groups
        WHERE user_id = $1 AND group_id = $2`,
@@ -56,6 +56,15 @@ async isMember(userId, familyId) {
     );
     return rows.length > 0;
   };
+  async getMemberid(user_id) {
+    const { rows } = await db.query(
+      `SELECT * FROM user_groups
+       WHERE user_id = $1 `,
+      [user_id]
+    );
+    return rows[0] || null;
+
+  }
 
 
 }

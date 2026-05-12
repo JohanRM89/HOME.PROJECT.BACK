@@ -3,6 +3,7 @@ const jwt       = require('jsonwebtoken');
 const crypto    = require('crypto');
 const UserRepository    = require('../repositories/UserRepository');
 const SessionRepository = require('../repositories/SessionRepository');
+const FamilyMemberRepository = require('../repositories/FamilyMemberRepository');
 
 class AuthService {
   // ── Registro ────────────────────────────────────────────
@@ -39,11 +40,12 @@ class AuthService {
 
     const { token, expiresAt } = this._generateToken(user.id);
     await SessionRepository.createSession(user.id, token, expiresAt, meta);
-
+    const  member = await FamilyMemberRepository.getMemberid(user.id);
     return {
       token,
       expiresAt,
       user: { id: user.id, name: user.name, email: user.email },
+      memberid: member.group_id
     };
   }
 
