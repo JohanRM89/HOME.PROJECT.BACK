@@ -17,6 +17,14 @@ class ReportController {
       return ResponseView.success(res, reports);
     } catch (err) { next(err); }
   }
+
+  async index_neew(req, res, next) {
+    try {
+      const { groupId } = req.params;
+      const reports = await ReportService.getReportsNew(groupId);
+      return ResponseView.success(res, reports);
+    } catch (err) { next(err); }
+  }
 }
 
 module.exports = new ReportController();

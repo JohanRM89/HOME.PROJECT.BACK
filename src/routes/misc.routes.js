@@ -14,5 +14,6 @@ router.patch('/notifications/:id/read', NotificationController.markRead);
 // Reportes por grupo
 router.post('/groups/:groupId/reports',  ReportController.generate);
 router.get('/groups/:groupId/reports',   ReportController.index);
+router.get('/groups_v2/:groupId/reports',   ReportController.index_neew);
 
 module.exports = router;
