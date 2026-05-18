@@ -47,6 +47,23 @@ app.get('/health', (req, res) =>
 // ── Manejadores de error ─────────────────────────────────────
 app.use(notFound);
 app.use(errorHandler);
+// ── Inicio del servidor ──────────────────────────────────────
+async function startServer() {
+  try {
+    await runMigrations();
+
+    NotificationObserver.register();
+
+    app.listen(PORT, () => {
+      console.log(`\n🚀 Task Manager API corriendo en puerto ${PORT}`);
+      console.log(`   Entorno: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`   Health: /health\n`);
+    });
+  } catch (error) {
+    console.error('❌ Error iniciando servidor:', error);
+    process.exit(1);
+  }
+}
 
 // ── Registrar Observer de notificaciones ────────────────────
 NotificationObserver.register();
@@ -57,5 +74,6 @@ app.listen(PORT, () => {
   console.log(`   Entorno: ${process.env.NODE_ENV || 'development'}`);
   console.log(`   Health:  http://localhost:${PORT}/health\n`);
 });
+startServer();
 
 module.exports = app;
