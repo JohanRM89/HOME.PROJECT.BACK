@@ -20,5 +20,7 @@ router.get('/comments/group/:group_id', Task_CommentController.getTaskCommentsBy
 router.post('/comments', Task_CommentController.createTaskComment);
 router.delete('/comments/:id/:task_id', Task_CommentController.deleteTaskComment);
 
+router.get('/familias/:groupId/calendario', authenticate, TaskController.getCalendar);
+
 
 module.exports = router;

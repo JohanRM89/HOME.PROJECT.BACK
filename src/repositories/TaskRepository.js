@@ -1,21 +1,35 @@
-const BaseRepository = require('./BaseRepository');
-const db = require('../config/database');
+const BaseRepository = require("./BaseRepository");
+const db = require("../config/database");
 
 class TaskRepository extends BaseRepository {
-  constructor() { super('tasks'); }
+  constructor() {
+    super("tasks");
+  }
 
   async findWithDetails(filters = {}, options = {}) {
     const { status, priority, groupId, assignedTo } = filters;
     const { page = 1, limit = 20 } = options;
     const offset = (page - 1) * limit;
     const conditions = [];
-    const values     = [];
-    let   idx        = 1;
-    if (status)     { conditions.push(`t.status = $${idx++}`);      values.push(status); }
-    if (priority)   { conditions.push(`t.priority = $${idx++}`);    values.push(priority); }
-    if (groupId)    { conditions.push(`t.group_id = $${idx++}`);    values.push(groupId); }
-    if (assignedTo) { conditions.push(`t.assigned_to = $${idx++}`); values.push(assignedTo); }
-    const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+    const values = [];
+    let idx = 1;
+    if (status) {
+      conditions.push(`t.status = $${idx++}`);
+      values.push(status);
+    }
+    if (priority) {
+      conditions.push(`t.priority = $${idx++}`);
+      values.push(priority);
+    }
+    if (groupId) {
+      conditions.push(`t.group_id = $${idx++}`);
+      values.push(groupId);
+    }
+    if (assignedTo) {
+      conditions.push(`t.assigned_to = $${idx++}`);
+      values.push(assignedTo);
+    }
+    const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
     const dataQ = db.query(
       `SELECT t.*,
               uc.name AS created_by_name,
@@ -30,19 +44,19 @@ class TaskRepository extends BaseRepository {
          CASE t.priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
          t.due_date ASC NULLS LAST
        LIMIT $${idx++} OFFSET $${idx}`,
-      [...values, limit, offset]
+      [...values, limit, offset],
     );
 
     const countQ = db.query(
       `SELECT COUNT(*)::int AS total FROM tasks t ${where}`,
-      values
+      values,
     );
 
     const [{ rows }, { rows: countRows }] = await Promise.all([dataQ, countQ]);
 
     return {
-      tasks:      rows,
-      total:      countRows[0].total,
+      tasks: rows,
+      total: countRows[0].total,
       page,
       totalPages: Math.ceil(countRows[0].total / limit),
     };
@@ -59,7 +73,7 @@ class TaskRepository extends BaseRepository {
        LEFT JOIN users ua         ON t.assigned_to = ua.id
        LEFT JOIN family_groups fg ON t.group_id    = fg.id
        WHERE t.id = $1`,
-      [id]
+      [id],
     );
     return rows[0] || null;
   }
@@ -70,7 +84,7 @@ class TaskRepository extends BaseRepository {
        FROM tasks t
        LEFT JOIN users u ON t.assigned_to = u.id
        WHERE t.due_date < NOW()
-         AND t.status != 'completed'`
+         AND t.status != 'completed'`,
     );
     return rows;
   }
@@ -80,10 +94,86 @@ class TaskRepository extends BaseRepository {
       `SELECT status, COUNT(*)::int AS count
        FROM tasks WHERE group_id = $1
        GROUP BY status`,
-      [groupId]
+      [groupId],
     );
     return rows;
   }
+  async userBelongsToGroup(userId, groupId) {
+    const query = `
+      SELECT 1
+      FROM user_groups
+      WHERE user_id = $1
+        AND group_id = $2
+      LIMIT 1
+    `;
+
+    const result = await db.query(query, [userId, groupId]);
+    return result.rowCount > 0;
+  }
+  async getCalendarByGroup(groupId, mes) {
+    const params = [groupId];
+
+    let query = `
+      SELECT 
+        t.id,
+        t.title,
+        t.status,
+        t.priority,
+        t.due_date,
+        COALESCE(
+          STRING_AGG(u.name, ', '),
+          ''
+        ) AS assigned_users
+      FROM tasks t
+      LEFT JOIN task_assignments ta 
+        ON t.id = ta.task_id
+      LEFT JOIN users u 
+        ON ta.user_id = u.id
+      WHERE t.group_id = $1
+        AND t.due_date IS NOT NULL
+    `;
+
+    if (mes) {
+      params.push(mes);
+      query += `
+        AND TO_CHAR(t.due_date, 'YYYY-MM') = $2
+      `;
+    }
+
+    query += `
+      GROUP BY t.id
+      ORDER BY t.due_date ASC
+    `;
+
+    const result = await db.query(query, params);
+    return result.rows;
+  }
+
+  async getCalendarByUserAndDay(userId, groupId, dia) {
+  const query = `
+    SELECT 
+      t.id,
+      t.title,
+      t.status,
+      t.priority,
+      t.due_date,
+      t.points,
+      c.name AS category_name,
+      c.icon AS category_icon,
+      c.color AS category_color
+    FROM tasks t
+   
+    LEFT JOIN categories c 
+      ON t.category_id = c.id
+    WHERE t.group_id = $1
+      AND t.assigned_to = $2
+      AND t.due_date::date = $3::date
+    ORDER BY t.due_date ASC
+  `;
+
+  const result = await db.query(query, [groupId, userId, dia]);
+  return result.rows;
+}
 }
 
 module.exports = new TaskRepository();

@@ -1,7 +1,7 @@
-const TaskRepository         = require('../repositories/TaskRepository');
-const NotificationRepository = require('../repositories/NotificationRepository');
-const { eventBus, EVENTS }   = require('../patterns/EventBus');
-const TaskFilterStrategy     = require('../patterns/TaskFilterStrategy');
+const TaskRepository = require("../repositories/TaskRepository");
+const NotificationRepository = require("../repositories/NotificationRepository");
+const { eventBus, EVENTS } = require("../patterns/EventBus");
+const TaskFilterStrategy = require("../patterns/TaskFilterStrategy");
 
 class TaskService {
   // ── Listar con filtros ───────────────────────────────────
@@ -14,11 +14,13 @@ class TaskService {
   async getById(id) {
     const task = await TaskRepository.findByIdWithDetails(id);
     if (!task) {
-      const err = new Error('Tarea no encontrada'); err.status = 404; throw err;
+      const err = new Error("Tarea no encontrada");
+      err.status = 404;
+      throw err;
     }
     return task;
   }
-    async getAllTask(query = {}, paging = {}) {
+  async getAllTask(query = {}, paging = {}) {
     const filters = TaskFilterStrategy.buildFilters(query);
     return TaskRepository.findWithDetails(filters, paging);
   }
@@ -26,7 +28,9 @@ class TaskService {
   async getAllTask(id) {
     const task = await TaskRepository.findByIdWithDetails(id);
     if (!task) {
-      const err = new Error('Tarea no encontrada'); err.status = 404; throw err;
+      const err = new Error("Tarea no encontrada");
+      err.status = 404;
+      throw err;
     }
     return task;
   }
@@ -34,15 +38,15 @@ class TaskService {
   // ── Crear tarea ──────────────────────────────────────────
   async create(data, actor) {
     const task = await TaskRepository.create({
-      title:       data.title,
+      title: data.title,
       description: data.description || null,
-      priority:    data.priority    || 'medium',
-      status:      'pending',
-      due_date:    data.due_date    || null,
-      group_id:    data.group_id    || null,
-      created_by:  actor.id,
+      priority: data.priority || "medium",
+      status: "pending",
+      due_date: data.due_date || null,
+      group_id: data.group_id || null,
+      created_by: actor.id,
       assigned_to: data.assigned_to || null,
-      category_id :data.category_id
+      category_id: data.category_id,
     });
 
     eventBus.emit(EVENTS.TASK_CREATED, { task, actor });
@@ -62,12 +66,12 @@ class TaskService {
     const existing = await this.getById(id);
 
     const updated = await TaskRepository.update(id, {
-      ...(data.title       !== undefined && { title:       data.title }),
+      ...(data.title !== undefined && { title: data.title }),
       ...(data.description !== undefined && { description: data.description }),
-      ...(data.priority    !== undefined && { priority:    data.priority }),
-      ...(data.due_date    !== undefined && { due_date:    data.due_date }),
+      ...(data.priority !== undefined && { priority: data.priority }),
+      ...(data.due_date !== undefined && { due_date: data.due_date }),
       ...(data.assigned_to !== undefined && { assigned_to: data.assigned_to }),
-      ...(data.group_id    !== undefined && { group_id:    data.group_id }),
+      ...(data.group_id !== undefined && { group_id: data.group_id }),
     });
 
     // Detectar cambio de asignado
@@ -87,7 +91,8 @@ class TaskService {
     const existing = await this.getById(id);
     if (existing.status === status) return existing;
 
-    const extraFields = status === 'completed' ? { completed_at: new Date() } : {};
+    const extraFields =
+      status === "completed" ? { completed_at: new Date() } : {};
     const updated = await TaskRepository.update(id, { status, ...extraFields });
 
     eventBus.emit(EVENTS.TASK_STATUS_CHANGED, { task: updated, actor });
@@ -98,12 +103,13 @@ class TaskService {
   async remove(id, actor) {
     const task = await this.getById(id);
     if (task.created_by !== actor.id) {
-      const err = new Error('No tienes permiso para eliminar esta tarea');
-      err.status = 403; throw err;
+      const err = new Error("No tienes permiso para eliminar esta tarea");
+      err.status = 403;
+      throw err;
     }
     await TaskRepository.delete(id);
     eventBus.emit(EVENTS.TASK_DELETED, { task, actor });
-    return { message: 'Tarea eliminada correctamente' };
+    return { message: "Tarea eliminada correctamente" };
   }
 
   // ── Tareas vencidas (para cron/job) ─────────────────────
@@ -112,6 +118,17 @@ class TaskService {
     if (tasks.length) eventBus.emit(EVENTS.TASK_DUE_SOON, { tasks });
     return tasks.length;
   }
+  async  getCalendar(userId, groupId, dia) {
+  const hasAccess = await TaskRepository.userBelongsToGroup(userId, groupId);
+
+  if (!hasAccess) {
+    const error = new Error('Acceso denegado');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  return await TaskRepository.getCalendarByUserAndDay(userId, groupId, dia);
+}
 }
 
 module.exports = new TaskService();
