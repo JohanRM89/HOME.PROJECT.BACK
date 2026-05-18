@@ -132,14 +132,17 @@ BEGIN
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+DROP TRIGGER IF EXISTS trg_users_updated_at ON users;
 
 CREATE TRIGGER trg_users_updated_at
   BEFORE UPDATE ON users
   FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();
+DROP TRIGGER IF EXISTS trg_family_groups_updated_at ON family_groups;
 
 CREATE TRIGGER trg_family_groups_updated_at
   BEFORE UPDATE ON family_groups
   FOR EACH ROW EXECUTE FUNCTION fn_update_updated_at();
+DROP TRIGGER IF EXISTS trg_tasks_updated_at ON tasks;
 
 CREATE TRIGGER trg_tasks_updated_at
   BEFORE UPDATE ON tasks
