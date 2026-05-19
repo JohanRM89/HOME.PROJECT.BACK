@@ -41,11 +41,12 @@ class AuthService {
     const { token, expiresAt } = this._generateToken(user.id);
     await SessionRepository.createSession(user.id, token, expiresAt, meta);
     const  member = await FamilyMemberRepository.getMemberid(user.id);
+    console.log("member", member)
     return {
       token,
       expiresAt,
       user: { id: user.id, name: user.name, email: user.email },
-      memberid: member.group_id
+      memberid: member ? member.group_id : null
     };
   }
 

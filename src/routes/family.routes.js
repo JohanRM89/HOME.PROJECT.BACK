@@ -10,6 +10,7 @@ router.use(authenticate);
 router.post('/', FamilyController.createFamily);
 router.post('/join', FamilyController.joinFamily);
 router.get('/:id', FamilyController.getFamily);
+router.get('/members/:group_id', FamilyController.getMembersFamily);
 router.delete('/family_group/:memberId/:user_id', FamilyController.removeMember);
 router.get('/categories/:group_id', CategoryController.getCategories);
 router.post('/create_categories',CategoryController.createCategories);
