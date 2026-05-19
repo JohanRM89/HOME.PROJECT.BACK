@@ -1,6 +1,7 @@
 const FamilyRepository = require("../repositories/FamilyRepository");
 const FamilyMemberRepository = require("../repositories/FamilyMemberRepository");
 const CategoryRepository = require("../repositories/CategoryRepository");
+const { eventBus, EVENTS } = require("../patterns/EventBus");
 
 class FamilyService {
   async createFamily(userId, { name }) {
@@ -45,6 +46,12 @@ class FamilyService {
       group_id: family.id,
       role: "member",
     });
+    const famiId =family.id;
+    eventBus.emit(EVENTS.USER_JOINED_GROUP, {
+      user,
+      famiId,
+      groupMembers
+    });
 
     return family;
   }
@@ -74,7 +81,7 @@ class FamilyService {
       };
     await FamilyMemberRepository.remove(user_id, familyId);
   }
-  async getMembersFamily( familyId) {
+  async getMembersFamily(familyId) {
     const members = await FamilyMemberRepository.getMembers(familyId);
     return members;
   }

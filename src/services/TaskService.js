@@ -2,6 +2,7 @@ const TaskRepository = require("../repositories/TaskRepository");
 const NotificationRepository = require("../repositories/NotificationRepository");
 const { eventBus, EVENTS } = require("../patterns/EventBus");
 const TaskFilterStrategy = require("../patterns/TaskFilterStrategy");
+const db = require('../config/database');
 
 class TaskService {
   // ── Listar con filtros ───────────────────────────────────
@@ -49,7 +50,19 @@ class TaskService {
       category_id: data.category_id,
     });
 
-    eventBus.emit(EVENTS.TASK_CREATED, { task, actor });
+    const { rows: members } = await db.query(
+      'SELECT user_id FROM user_groups WHERE group_id = $1',
+      [task.group_id]
+    );
+
+    const groupMembers = members.map(m => m.user_id);
+
+   
+    eventBus.emit(EVENTS.TASK_CREATED, {
+      task,
+      groupMembers,
+      actor,
+    });
 
     if (task.assigned_to && task.assigned_to !== actor.id) {
       eventBus.emit(EVENTS.TASK_ASSIGNED, {
@@ -82,7 +95,12 @@ class TaskService {
       });
     }
 
-    eventBus.emit(EVENTS.TASK_UPDATED, { task: updated, actor });
+
+    eventBus.emit(EVENTS.TASK_STATUS_CHANGED, {
+      task,
+      actor: user,
+      groupMembers
+    });
     return TaskRepository.findByIdWithDetails(id);
   }
 
@@ -118,17 +136,17 @@ class TaskService {
     if (tasks.length) eventBus.emit(EVENTS.TASK_DUE_SOON, { tasks });
     return tasks.length;
   }
-  async  getCalendar(userId, groupId, dia) {
-  const hasAccess = await TaskRepository.userBelongsToGroup(userId, groupId);
+  async getCalendar(userId, groupId, dia) {
+    const hasAccess = await TaskRepository.userBelongsToGroup(userId, groupId);
 
-  if (!hasAccess) {
-    const error = new Error('Acceso denegado');
-    error.statusCode = 403;
-    throw error;
+    if (!hasAccess) {
+      const error = new Error('Acceso denegado');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    return await TaskRepository.getCalendarByUserAndDay(userId, groupId, dia);
   }
-
-  return await TaskRepository.getCalendarByUserAndDay(userId, groupId, dia);
-}
 }
 
 module.exports = new TaskService();

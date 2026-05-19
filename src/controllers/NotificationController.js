@@ -1,11 +1,15 @@
 const NotificationRepository = require('../repositories/NotificationRepository');
-const ResponseView           = require('../views/responses/ResponseView');
+const ResponseView = require('../views/responses/ResponseView');
 
 class NotificationController {
   async index(req, res, next) {
     try {
+
+
       const onlyUnread = req.query.unread === 'true';
-      const notifs = await NotificationRepository.findForUser(req.user.id, onlyUnread);
+      const notifs = await NotificationRepository.findForUser(req.user.id,
+        req.params.id,
+        onlyUnread);
       return ResponseView.success(res, notifs);
     } catch (err) { next(err); }
   }

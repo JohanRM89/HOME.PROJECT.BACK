@@ -7,7 +7,7 @@ const { param }              = require('express-validator');
 router.use(authenticate);
 
 // Notificaciones
-router.get('/notifications',            NotificationController.index);
+router.get('/notifications/member/:id',            NotificationController.index);
 router.patch('/notifications/read-all', NotificationController.markAllRead);
 router.patch('/notifications/:id/read', NotificationController.markRead);
 
