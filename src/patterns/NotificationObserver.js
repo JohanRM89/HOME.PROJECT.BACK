@@ -21,6 +21,7 @@ class NotificationObserver {
     eventBus.on(EVENTS.TASK_STATUS_CHANGED, async ({ task, actor }) => {
       try {
         if (task.created_by !== actor.id) {
+          console.log(`[NotificationObserver] STATUS_CHANGED: Notificando a ${task} sobre cambio de estado de "${task.title}"`);
           await NotificationRepository.create({
             user_id: task.created_by,
             task_id: task.id,

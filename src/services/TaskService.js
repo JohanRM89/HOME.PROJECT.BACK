@@ -106,6 +106,7 @@ class TaskService {
 
   // ── Cambiar estado ───────────────────────────────────────
   async changeStatus(id, status, actor) {
+    console.log(`[TaskService] changeStatus: Cambiando estado de tarea ${id} a "${status}" por usuario ${actor.id}`);
     const existing = await this.getById(id);
     if (existing.status === status) return existing;
 
