@@ -15,15 +15,17 @@ class AppEventBus extends EventEmitter {
 
 // Eventos disponibles en la aplicación
 const EVENTS = Object.freeze({
-  TASK_CREATED:        'task:created',
-  TASK_UPDATED:        'task:updated',
-  TASK_DELETED:        'task:deleted',
-  TASK_ASSIGNED:       'task:assigned',
+  TASK_CREATED: 'task:created',
+  TASK_UPDATED: 'task:updated',
+  TASK_DELETED: 'task:deleted',
+  TASK_ASSIGNED: 'task:assigned',
   TASK_STATUS_CHANGED: 'task:status_changed',
-  TASK_DUE_SOON:       'task:due_soon',
-  USER_REGISTERED:     'user:registered',
+  TASK_DUE_SOON: 'task:due_soon',
+  USER_REGISTERED: 'user:registered',
   USER_RESET_PASSWORD: 'user:reset_password',
-  REPORT_GENERATED:    'report:generated',
+  REPORT_GENERATED: 'report:generated',
+  USER_JOINED_GROUP: 'user:joined_group'
+
 });
 
 module.exports = { eventBus: new AppEventBus(), EVENTS };

@@ -29,7 +29,7 @@ class FamilyMemberRepository {
 
   async getMembers(familyId) {
     const { rows } = await db.query(`
-      SELECT u.name, u.email,
+      SELECT u.name, u.email,u.id,
              mf.role, mf.points_accumulated, mf.joined_at
       FROM users u
       JOIN user_groups mf ON u.id=mf.user_id
