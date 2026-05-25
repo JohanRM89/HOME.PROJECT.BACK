@@ -32,11 +32,15 @@ class TaskRepository extends BaseRepository {
     const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
     const dataQ = db.query(
       `SELECT t.*,
+              ct.name,
+              ct.icon,
+              ct.color,
               uc.name AS created_by_name,
               ua.name AS assigned_to_name,
               fg.name AS group_name
        FROM tasks t
        LEFT JOIN users uc          ON t.created_by  = uc.id
+       LEFT JOIN categories ct          ON t.category_id = ct.id
        LEFT JOIN users ua          ON t.assigned_to = ua.id
        LEFT JOIN family_groups fg  ON t.group_id    = fg.id
        ${where}

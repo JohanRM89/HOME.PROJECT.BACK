@@ -26,7 +26,7 @@ class Task_CommentRepository extends BaseRepository {
   }
   async getTask_Comments_ByTask(task_id) {
     const result = await db.query(
-      `SELECT * FROM task_comments WHERE task_id=$1`,
+      `SELECT * FROM task_comments WHERE task_id=$1 ORDER BY created_at DESC`,
       [task_id],
     );
     return result.rows;
