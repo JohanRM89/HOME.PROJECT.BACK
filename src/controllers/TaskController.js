@@ -57,6 +57,7 @@ class TaskController {
 
   async changeStatus(req, res, next) {
     try {
+      
       const task = await TaskService.changeStatus(
         req.params.id,
         req.body.status,

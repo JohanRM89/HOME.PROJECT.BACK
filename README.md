@@ -211,3 +211,7 @@ curl -X PATCH http://localhost:3000/api/tasks/<id>/status \
 | `JWT_SECRET` | Clave secreta JWT | — |
 | `JWT_EXPIRES_IN` | Duración del token | `8h` |
 | `BCRYPT_ROUNDS` | Rounds de encriptación | `12` |
+
+
+ ## Produccion 
+ eas build -p android --profile preview
