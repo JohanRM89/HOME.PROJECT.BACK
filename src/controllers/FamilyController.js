@@ -13,7 +13,11 @@ class FamilyController {
 
   async joinFamily(req, res, next) {
     try {
-      const fam = await FamilyService.joinFamily(req.user.id, req.body.codigo);
+      const fam = await FamilyService.joinFamily(
+        req.user.id,
+        req.body.codigo,
+        req.user,
+      );
       res.json(fam);
     } catch (e) {
       next(e);
@@ -46,9 +50,7 @@ class FamilyController {
   async getMembersFamily(req, res, next) {
     try {
       const { group_id } = req.params;
-      const members = await FamilyService.getMembersFamily(
-        group_id,
-      );
+      const members = await FamilyService.getMembersFamily(group_id);
       return ResponseView.success(res, members);
     } catch (e) {
       next(e);

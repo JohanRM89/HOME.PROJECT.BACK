@@ -107,8 +107,6 @@ class TaskService {
     const extraFields =
       status === "completed" ? { completed_at: new Date() } : {};
     const updated = await TaskRepository.update(id, { status, ...extraFields });
-    console.log("updated", updated);
-    console.log("actor", actor);
     if (updated.status === "completed") {
       eventBus.emit(EVENTS.TASK_STATUS_CHANGED, { task: updated, actor });
     }

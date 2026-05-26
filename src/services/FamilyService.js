@@ -32,7 +32,7 @@ class FamilyService {
     return family;
   }
 
-  async joinFamily(userId, code) {
+  async joinFamily(userId, code,actor) {
     if (!code) throw { status: 400, message: "Código requerido" };
 
     const belongs = await FamilyMemberRepository.findByUser(userId);
@@ -46,12 +46,10 @@ class FamilyService {
       group_id: family.id,
       role: "member",
     });
-    const famiId =family.id;
+    const famiId = family.id;
     eventBus.emit(EVENTS.USER_JOINED_GROUP, {
-      user,
-      famiId,
-      groupMembers
-    });
+      actor,
+      famiId    });
 
     return family;
   }

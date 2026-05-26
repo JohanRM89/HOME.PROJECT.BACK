@@ -56,12 +56,12 @@ async function startServer() {
     NotificationObserver.register();
 
     app.listen(PORT, () => {
-      console.log(`\n🚀 Task Manager API corriendo en puerto ${PORT}`);
+      console.log(`\n Task Manager API corriendo en puerto ${PORT}`);
       console.log(`   Entorno: ${process.env.NODE_ENV || "development"}`);
       console.log(`   Health: /health\n`);
     });
   } catch (error) {
-    console.error("❌ Error iniciando servidor:", error);
+    console.error(" Error iniciando servidor:", error);
     process.exit(1);
   }
 }
