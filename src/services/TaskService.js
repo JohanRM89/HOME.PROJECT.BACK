@@ -2,7 +2,7 @@ const TaskRepository = require("../repositories/TaskRepository");
 const NotificationRepository = require("../repositories/NotificationRepository");
 const { eventBus, EVENTS } = require("../patterns/EventBus");
 const TaskFilterStrategy = require("../patterns/TaskFilterStrategy");
-const db = require('../config/database');
+const db = require("../config/database");
 
 class TaskService {
   // ── Listar con filtros ───────────────────────────────────
@@ -51,25 +51,21 @@ class TaskService {
     });
 
     const { rows: members } = await db.query(
-      'SELECT user_id FROM user_groups WHERE group_id = $1',
-      [task.group_id]
+      "SELECT user_id FROM user_groups WHERE group_id = $1",
+      [task.group_id],
     );
 
-    const groupMembers = members.map(m => m.user_id);
+    const groupMembers = members.map((m) => m.user_id);
 
-   
     eventBus.emit(EVENTS.TASK_CREATED, {
       task,
       groupMembers,
       actor,
     });
-
-    if (task.assigned_to && task.assigned_to !== actor.id) {
-      eventBus.emit(EVENTS.TASK_ASSIGNED, {
-        task,
-        assignedUser: { id: task.assigned_to },
-      });
-    }
+    eventBus.emit(EVENTS.TASK_ASSIGNED, {
+      task,
+      assignedUser: { id: task.assigned_to },
+    });
 
     return TaskRepository.findByIdWithDetails(task.id);
   }
@@ -95,26 +91,27 @@ class TaskService {
       });
     }
 
-
     eventBus.emit(EVENTS.TASK_STATUS_CHANGED, {
       task,
       actor: user,
-      groupMembers
+      groupMembers,
     });
     return TaskRepository.findByIdWithDetails(id);
   }
 
   // ── Cambiar estado ───────────────────────────────────────
   async changeStatus(id, status, actor) {
-    console.log(`[TaskService] changeStatus: Cambiando estado de tarea ${id} a "${status}" por usuario ${actor.id}`);
     const existing = await this.getById(id);
     if (existing.status === status) return existing;
 
     const extraFields =
       status === "completed" ? { completed_at: new Date() } : {};
     const updated = await TaskRepository.update(id, { status, ...extraFields });
-
-    eventBus.emit(EVENTS.TASK_STATUS_CHANGED, { task: updated, actor });
+    console.log("updated", updated);
+    console.log("actor", actor);
+    if (updated.status === "completed") {
+      eventBus.emit(EVENTS.TASK_STATUS_CHANGED, { task: updated, actor });
+    }
     return TaskRepository.findByIdWithDetails(id);
   }
 
@@ -141,7 +138,7 @@ class TaskService {
     const hasAccess = await TaskRepository.userBelongsToGroup(userId, groupId);
 
     if (!hasAccess) {
-      const error = new Error('Acceso denegado');
+      const error = new Error("Acceso denegado");
       error.statusCode = 403;
       throw error;
     }

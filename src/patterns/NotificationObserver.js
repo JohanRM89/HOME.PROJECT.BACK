@@ -20,16 +20,14 @@ class NotificationObserver {
 
     eventBus.on(EVENTS.TASK_STATUS_CHANGED, async ({ task, actor }) => {
       try {
-        if (task.created_by !== actor.id) {
           console.log(`[NotificationObserver] STATUS_CHANGED: Notificando a ${task} sobre cambio de estado de "${task.title}"`);
           await NotificationRepository.create({
-            user_id: task.created_by,
+            user_id: actor.id,
             task_id: task.id,
             group_id: task.group_id,
-            type: 'status_change',
+            type: 'task_completed',
             message: `La tarea "${task.title}" cambió a estado: ${task.status}`,
           });
-        }
       } catch (e) { console.error('[NotificationObserver] STATUS_CHANGED:', e.message); }
     });
 
